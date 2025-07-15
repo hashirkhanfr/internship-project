@@ -18,6 +18,8 @@ import ForgotPassword from '../components/ForgotPassword';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
+import { auth, googleProvider } from '../config/firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -65,6 +67,7 @@ export default function SignIn(props) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  const [firebaseError, setFirebaseError] = React.useState('');
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -75,16 +78,31 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setFirebaseError('');
     if (emailError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email');
+    const password = data.get('password');
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // You can add redirect or success message here
+    } catch (error) {
+      setFirebaseError(error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setFirebaseError('');
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // You can add redirect or success message here
+    } catch (error) {
+      setFirebaseError(error.message);
+    }
   };
 
   const validateInputs = () => {
@@ -204,7 +222,7 @@ export default function SignIn(props) {
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert('Sign in with Google')}
+              onClick={handleGoogleSignIn}
               startIcon={<GoogleIcon />}
             >
               Sign in with Google

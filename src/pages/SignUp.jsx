@@ -16,6 +16,8 @@ import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 import { Link as RouterLink } from 'react-router-dom';
+import { auth, googleProvider } from '../config/firebase';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -65,18 +67,33 @@ export default function SignUp(props) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  const [firebaseError, setFirebaseError] = React.useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setFirebaseError('');
     if (nameError || emailError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const email = data.get('email');
+    const password = data.get('password');
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      // You can add redirect or success message here
+    } catch (error) {
+      setFirebaseError(error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setFirebaseError('');
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // You can add redirect or success message here
+    } catch (error) {
+      setFirebaseError(error.message);
+    }
   };
 
   const validateInputs = () => {
@@ -190,6 +207,11 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            {firebaseError && (
+              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                {firebaseError}
+              </Typography>
+            )}
             <Button
               type="submit"
               fullWidth
@@ -204,7 +226,7 @@ export default function SignUp(props) {
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert('Continue with Google')}
+              onClick={handleGoogleSignIn}
               startIcon={<GoogleIcon />}
             >
               Continue with Google
