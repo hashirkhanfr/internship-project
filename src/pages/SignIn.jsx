@@ -1,21 +1,23 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 import Divider from '@mui/material/Divider';
+import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
+import { Link as RouterLink } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-import AppTheme from './theme/AppTheme';
-import ColorModeSelect from './theme/ColorModeSelect';
-import { GoogleIcon, HashirIcon } from './components/CustomIcons';
-import { Link as RouterLink } from 'react-router-dom';
+import ForgotPassword from '../components/ForgotPassword';
+import AppTheme from '../theme/AppTheme';
+import ColorModeSelect from '../theme/ColorModeSelect';
+import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -32,7 +34,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-const SignUpContainer = styled(Stack)(({ theme }) => ({
+const SignInContainer = styled(Stack)(({ theme }) => ({
   display: 'flex',
   height: '100vh',
   padding: theme.spacing(2),
@@ -57,43 +59,39 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-export default function SignUp(props) {
+export default function SignIn(props) {
   const { disableCustomTheme } = props;
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (nameError || emailError || passwordError) {
+    if (emailError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
     console.log({
-      name: data.get('name'),
       email: data.get('email'),
       password: data.get('password'),
     });
   };
 
   const validateInputs = () => {
-    const name = document.getElementById('name');
     const email = document.getElementById('email');
     const password = document.getElementById('password');
 
     let isValid = true;
-
-    if (!name.value || name.value.trim().length < 2) {
-      setNameError(true);
-      setNameErrorMessage('Please enter your name (at least 2 characters).');
-      isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage('');
-    }
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
@@ -119,7 +117,7 @@ export default function SignUp(props) {
   return (
     <AppTheme disableCustomTheme={disableCustomTheme}>
       <CssBaseline enableColorScheme />
-      <SignUpContainer direction="column" justifyContent="center" alignItems="center">
+      <SignInContainer direction="column" justifyContent="center" alignItems="center">
         <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
         <Card variant="outlined">
           <HashirIcon />
@@ -128,7 +126,7 @@ export default function SignUp(props) {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
           >
-            Sign up
+            Sign in
           </Typography>
           <Box
             component="form"
@@ -142,23 +140,6 @@ export default function SignUp(props) {
             }}
           >
             <FormControl>
-              <FormLabel htmlFor="name">Name</FormLabel>
-              <TextField
-                error={nameError}
-                helperText={nameErrorMessage}
-                id="name"
-                type="text"
-                name="name"
-                placeholder="Your name"
-                autoComplete="name"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={nameError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
                 error={emailError}
@@ -168,6 +149,7 @@ export default function SignUp(props) {
                 name="email"
                 placeholder="your@email.com"
                 autoComplete="email"
+                autoFocus
                 required
                 fullWidth
                 variant="outlined"
@@ -183,46 +165,64 @@ export default function SignUp(props) {
                 placeholder="••••••"
                 type="password"
                 id="password"
-                autoComplete="new-password"
+                autoComplete="current-password"
+                autoFocus
                 required
                 fullWidth
                 variant="outlined"
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+              sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}
+              className="remember-me-label"
+            />
+            <ForgotPassword open={open} handleClose={handleClose} />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               onClick={validateInputs}
             >
-              Sign up
+              Sign in
             </Button>
+            <Link
+              component="button"
+              type="button"
+              onClick={handleClickOpen}
+              variant="body2"
+              sx={{ alignSelf: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }}
+              className="forgot-password-link"
+            >
+              Forgot your password?
+            </Link>
           </Box>
           <Divider>or</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Button
               fullWidth
               variant="outlined"
-              onClick={() => alert('Continue with Google')}
+              onClick={() => alert('Sign in with Google')}
               startIcon={<GoogleIcon />}
             >
-              Continue with Google
+              Sign in with Google
             </Button>
             <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }} className="no-account-text">
-              Already have an account?{' '}
+              Don't have an account?{' '}
               <Link
                 component={RouterLink}
-                to="/signin"
+                to="/signup"
                 variant="body2"
                 sx={{ alignSelf: 'center' }}
               >
-                Sign in
+                Sign up
               </Link>
             </Typography>
           </Box>
         </Card>
-      </SignUpContainer>
+      </SignInContainer>
     </AppTheme>
   );
 }
