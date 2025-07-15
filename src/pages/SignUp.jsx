@@ -19,6 +19,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { auth, googleProvider, db } from '../config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import SuccessButton from '../components/SuccessButton';
+import ErrorAlert from '../components/ErrorAlert';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -69,10 +71,15 @@ export default function SignUp(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [firebaseError, setFirebaseError] = React.useState('');
+  const [successMessage, setSuccessMessage] = React.useState('');
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [showError, setShowError] = React.useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setFirebaseError('');
+    setShowError(false);
+    setShowSuccess(false);
     if (nameError || emailError || passwordError) {
       return;
     }
@@ -90,19 +97,25 @@ export default function SignUp(props) {
         name: name,
         createdAt: new Date()
       });
-      // You can add redirect or success message here
+      setSuccessMessage('Sign up successful!');
+      setShowSuccess(true);
     } catch (error) {
       setFirebaseError(error.message);
+      setShowError(true);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setFirebaseError('');
+    setShowError(false);
+    setShowSuccess(false);
     try {
       await signInWithPopup(auth, googleProvider);
-      // You can add redirect or success message here
+      setSuccessMessage('Sign up successful!');
+      setShowSuccess(true);
     } catch (error) {
       setFirebaseError(error.message);
+      setShowError(true);
     }
   };
 
@@ -141,6 +154,14 @@ export default function SignUp(props) {
     }
 
     return isValid;
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+  };
+
+  const handleErrorClose = () => {
+    setShowError(false);
   };
 
   return (
@@ -217,11 +238,6 @@ export default function SignUp(props) {
                 color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
-            {firebaseError && (
-              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-                {firebaseError}
-              </Typography>
-            )}
             <Button
               type="submit"
               fullWidth
@@ -254,6 +270,10 @@ export default function SignUp(props) {
             </Typography>
           </Box>
         </Card>
+        {showSuccess && (
+          <SuccessButton message={successMessage} onClose={handleSuccessClose} />
+        )}
+        <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
       </SignUpContainer>
     </AppTheme>
   );

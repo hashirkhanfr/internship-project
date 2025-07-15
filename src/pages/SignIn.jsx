@@ -21,6 +21,8 @@ import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 import { auth, googleProvider, db } from '../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import SuccessButton from '../components/SuccessButton';
+import ErrorAlert from '../components/ErrorAlert';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -69,6 +71,9 @@ export default function SignIn(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [firebaseError, setFirebaseError] = React.useState('');
+  const [successMessage, setSuccessMessage] = React.useState('');
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [showError, setShowError] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -82,6 +87,8 @@ export default function SignIn(props) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setFirebaseError('');
+    setShowError(false);
+    setShowSuccess(false);
     if (emailError || passwordError) {
       return;
     }
@@ -104,13 +111,18 @@ export default function SignIn(props) {
       } else {
         await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
       }
+      setSuccessMessage('Sign in successful!');
+      setShowSuccess(true);
     } catch (error) {
       setFirebaseError(error.message);
+      setShowError(true);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setFirebaseError('');
+    setShowError(false);
+    setShowSuccess(false);
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       const user = userCredential.user;
@@ -127,8 +139,11 @@ export default function SignIn(props) {
       } else {
         await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
       }
+      setSuccessMessage('Sign in successful!');
+      setShowSuccess(true);
     } catch (error) {
       setFirebaseError(error.message);
+      setShowError(true);
     }
   };
 
@@ -157,6 +172,14 @@ export default function SignIn(props) {
     }
 
     return isValid;
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
+  };
+
+  const handleErrorClose = () => {
+    setShowError(false);
   };
 
   return (
@@ -267,6 +290,10 @@ export default function SignIn(props) {
             </Typography>
           </Box>
         </Card>
+        {showSuccess && (
+          <SuccessButton message={successMessage} onClose={handleSuccessClose} />
+        )}
+        <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
       </SignInContainer>
     </AppTheme>
   );
