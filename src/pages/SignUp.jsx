@@ -16,8 +16,9 @@ import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 import { Link as RouterLink } from 'react-router-dom';
-import { auth, googleProvider } from '../config/firebase';
+import { auth, googleProvider, db } from '../config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -76,10 +77,19 @@ export default function SignUp(props) {
       return;
     }
     const data = new FormData(event.currentTarget);
+    const name = data.get('name');
     const email = data.get('email');
     const password = data.get('password');
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Add user details to Firestore "users" collection
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        name: name,
+        createdAt: new Date()
+      });
       // You can add redirect or success message here
     } catch (error) {
       setFirebaseError(error.message);

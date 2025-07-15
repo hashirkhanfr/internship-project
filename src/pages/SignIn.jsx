@@ -18,8 +18,9 @@ import ForgotPassword from '../components/ForgotPassword';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
-import { auth, googleProvider } from '../config/firebase';
+import { auth, googleProvider, db } from '../config/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -88,8 +89,21 @@ export default function SignIn(props) {
     const email = data.get('email');
     const password = data.get('password');
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // You can add redirect or success message here
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Check if user exists in Firestore "users" collection
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: '',
+          lastLogin: new Date()
+        });
+      } else {
+        await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
+      }
     } catch (error) {
       setFirebaseError(error.message);
     }
@@ -98,8 +112,21 @@ export default function SignIn(props) {
   const handleGoogleSignIn = async () => {
     setFirebaseError('');
     try {
-      await signInWithPopup(auth, googleProvider);
-      // You can add redirect or success message here
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const user = userCredential.user;
+      // Check if user exists in Firestore "users" collection
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || '',
+          lastLogin: new Date()
+        });
+      } else {
+        await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
+      }
     } catch (error) {
       setFirebaseError(error.message);
     }
