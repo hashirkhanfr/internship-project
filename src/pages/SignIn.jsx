@@ -76,11 +76,13 @@ export default function SignIn(props) {
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
   const [open, setOpen] = React.useState(false);
+  const [emailForReset, setEmailForReset] = React.useState('');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm({
     mode: 'onChange',
   });
@@ -146,6 +148,8 @@ export default function SignIn(props) {
   };
 
   const handleClickOpen = () => {
+    const currentEmail = getValues('email') || '';
+    setEmailForReset(currentEmail);
     setOpen(true);
   };
 
