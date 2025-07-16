@@ -109,7 +109,7 @@ export default function SignIn(props) {
       if (user.emailVerified) {
         setSuccessMessage('Sign in successful!');
         setShowSuccess(true);
-        window.location.href = '/dashboard';
+        window.location.href = import.meta.env.BASE_URL + 'dashboard';
       } else {
         setFirebaseError('Please verify your email before accessing the dashboard.');
         setShowError(true);
