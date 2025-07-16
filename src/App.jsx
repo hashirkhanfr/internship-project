@@ -8,13 +8,12 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/internship-project">
         <Routes>
           <Route path="/" element={<Navigate to="/signin" replace />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route
-            path="/dashboard"
+          <Route path="/dashboard"
             element={
               <ProtectedRoute>
                 <Dashboard />
