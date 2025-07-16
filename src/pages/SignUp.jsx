@@ -21,6 +21,7 @@ import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
+import { useForm } from 'react-hook-form';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -64,38 +65,31 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignUp(props) {
   const { disableCustomTheme } = props;
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [firebaseError, setFirebaseError] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: 'onChange',
+  });
+
+  const onSubmit = async (data) => {
     setFirebaseError('');
     setShowError(false);
     setShowSuccess(false);
-    if (nameError || emailError || passwordError) {
-      return;
-    }
-    const data = new FormData(event.currentTarget);
-    const name = data.get('name');
-    const email = data.get('email');
-    const password = data.get('password');
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
-      // Add user details to Firestore "users" collection
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
-        name: name,
-        createdAt: new Date()
+        name: data.name,
+        createdAt: new Date(),
       });
       setSuccessMessage('Sign up successful!');
       setShowSuccess(true);
@@ -117,43 +111,6 @@ export default function SignUp(props) {
       setFirebaseError(error.message);
       setShowError(true);
     }
-  };
-
-  const validateInputs = () => {
-    const name = document.getElementById('name');
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-
-    let isValid = true;
-
-    if (!name.value || name.value.trim().length < 2) {
-      setNameError(true);
-      setNameErrorMessage('Please enter your name (at least 2 characters).');
-      isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage('');
-    }
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
-    }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
-
-    return isValid;
   };
 
   const handleSuccessClose = () => {
@@ -180,7 +137,7 @@ export default function SignUp(props) {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             noValidate
             sx={{
               display: 'flex',
@@ -192,58 +149,84 @@ export default function SignUp(props) {
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
               <TextField
-                error={nameError}
-                helperText={nameErrorMessage}
+                error={!!errors.name}
+                helperText={errors.name ? errors.name.message : ''}
                 id="name"
                 type="text"
-                name="name"
+                {...register('name', {
+                  required: 'Please enter your name (at least 2 characters).',
+                  minLength: {
+                    value: 2,
+                    message: 'Please enter your name (at least 2 characters).',
+                  },
+                })}
                 placeholder="Your name"
                 autoComplete="name"
                 autoFocus
-                required
                 fullWidth
                 variant="outlined"
-                color={nameError ? 'error' : 'primary'}
+                color={errors.name ? 'error' : 'primary'}
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red',
+                  },
+                }}
               />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
-                error={emailError}
-                helperText={emailErrorMessage}
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ''}
                 id="email"
                 type="email"
-                name="email"
+                {...register('email', {
+                  required: 'Please enter a valid email address.',
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: 'Please enter a valid email address.',
+                  },
+                })}
                 placeholder="your@email.com"
                 autoComplete="email"
-                required
                 fullWidth
                 variant="outlined"
-                color={emailError ? 'error' : 'primary'}
+                color={errors.email ? 'error' : 'primary'}
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red',
+                  },
+                }}
               />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ''}
                 name="password"
                 placeholder="••••••"
                 type="password"
                 id="password"
+                {...register('password', {
+                  required: 'Password must be at least 6 characters long.',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters long.',
+                  },
+                })}
                 autoComplete="new-password"
-                required
                 fullWidth
                 variant="outlined"
-                color={passwordError ? 'error' : 'primary'}
+                color={errors.password ? 'error' : 'primary'}
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red',
+                  },
+                }}
               />
             </FormControl>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+            <Button type="submit" fullWidth variant="contained">
               Sign up
             </Button>
           </Box>
@@ -259,20 +242,13 @@ export default function SignUp(props) {
             </Button>
             <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }} className="no-account-text">
               Already have an account?{' '}
-              <Link
-                component={RouterLink}
-                to="/signin"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-              >
+              <Link component={RouterLink} to="/signin" variant="body2" sx={{ alignSelf: 'center' }}>
                 Sign in
               </Link>
             </Typography>
           </Box>
         </Card>
-        {showSuccess && (
-          <SuccessButton message={successMessage} onClose={handleSuccessClose} />
-        )}
+        {showSuccess && <SuccessButton message={successMessage} onClose={handleSuccessClose} />}
         <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
       </SignUpContainer>
     </AppTheme>

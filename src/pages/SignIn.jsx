@@ -23,6 +23,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
+import { useForm } from 'react-hook-form';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -66,39 +67,27 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignIn(props) {
   const { disableCustomTheme } = props;
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [firebaseError, setFirebaseError] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: 'onChange',
+  });
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (data) => {
     setFirebaseError('');
     setShowError(false);
     setShowSuccess(false);
-    if (emailError || passwordError) {
-      return;
-    }
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
-      // Check if user exists in Firestore "users" collection
       const userDocRef = doc(db, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) {
@@ -106,7 +95,7 @@ export default function SignIn(props) {
           uid: user.uid,
           email: user.email,
           name: '',
-          lastLogin: new Date()
+          lastLogin: new Date(),
         });
       } else {
         await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
@@ -126,7 +115,6 @@ export default function SignIn(props) {
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
       const user = userCredential.user;
-      // Check if user exists in Firestore "users" collection
       const userDocRef = doc(db, 'users', user.uid);
       const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) {
@@ -134,7 +122,7 @@ export default function SignIn(props) {
           uid: user.uid,
           email: user.email,
           name: user.displayName || '',
-          lastLogin: new Date()
+          lastLogin: new Date(),
         });
       } else {
         await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
@@ -147,31 +135,12 @@ export default function SignIn(props) {
     }
   };
 
-  const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
-    let isValid = true;
-
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
-    }
-
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
-
-    return isValid;
+  const handleClose = () => {
+    setOpen(false);
   };
 
   const handleSuccessClose = () => {
@@ -198,7 +167,7 @@ export default function SignIn(props) {
           </Typography>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             noValidate
             sx={{
               display: 'flex',
@@ -210,35 +179,54 @@ export default function SignIn(props) {
             <FormControl>
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
-                error={emailError}
-                helperText={emailErrorMessage}
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ''}
                 id="email"
                 type="email"
-                name="email"
+                {...register('email', {
+                  required: 'Please enter a valid email address.',
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: 'Please enter a valid email address.',
+                  },
+                })}
                 placeholder="your@email.com"
                 autoComplete="email"
                 autoFocus
-                required
                 fullWidth
                 variant="outlined"
-                color={emailError ? 'error' : 'primary'}
+                color={errors.email ? 'error' : 'primary'}
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red',
+                  },
+                }}
               />
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                name="password"
-                placeholder="••••••"
-                type="password"
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ''}
                 id="password"
+                type="password"
+                {...register('password', {
+                  required: 'Password must be at least 6 characters long.',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters long.',
+                  },
+                })}
+                placeholder="••••••"
                 autoComplete="current-password"
-                autoFocus
-                required
                 fullWidth
                 variant="outlined"
-                color={passwordError ? 'error' : 'primary'}
+                color={errors.password ? 'error' : 'primary'}
+                sx={{
+                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'red',
+                  },
+                }}
               />
             </FormControl>
             <FormControlLabel
@@ -248,12 +236,7 @@ export default function SignIn(props) {
               className="remember-me-label"
             />
             <ForgotPassword open={open} handleClose={handleClose} />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              onClick={validateInputs}
-            >
+            <Button type="submit" fullWidth variant="contained">
               Sign in
             </Button>
             <Link
@@ -279,20 +262,13 @@ export default function SignIn(props) {
             </Button>
             <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }} className="no-account-text">
               Don't have an account?{' '}
-              <Link
-                component={RouterLink}
-                to="/signup"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-              >
+              <Link component={RouterLink} to="/signup" variant="body2" sx={{ alignSelf: 'center' }}>
                 Sign up
               </Link>
             </Typography>
           </Box>
         </Card>
-        {showSuccess && (
-          <SuccessButton message={successMessage} onClose={handleSuccessClose} />
-        )}
+        {showSuccess && <SuccessButton message={successMessage} onClose={handleSuccessClose} />}
         <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
       </SignInContainer>
     </AppTheme>
