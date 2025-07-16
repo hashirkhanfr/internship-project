@@ -26,12 +26,16 @@ import { useForm } from 'react-hook-form';
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  width: '130%',
+  width: '150%',
   maxWidth: 600,
+  minHeight: 480,
   padding: theme.spacing(5),
   gap: theme.spacing(3),
   boxShadow:
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+  [theme.breakpoints.up('sm')]: {
+    width: '130%',
+  },
   ...theme.applyStyles('dark', {
     boxShadow:
       'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
@@ -153,7 +157,7 @@ export default function SignUp(props) {
               <FormLabel htmlFor="name">Name</FormLabel>
               <TextField
                 error={!!errors.name}
-                helperText={errors.name ? errors.name.message : ''}
+                helperText={errors.name ? errors.name.message : '\u00A0'}
                 id="name"
                 type="text"
                 {...register('name', {
@@ -173,6 +177,9 @@ export default function SignUp(props) {
                   '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'red',
                   },
+                  '& .MuiFormHelperText-root': {
+                    minHeight: '1.5em',
+                  },
                 }}
               />
             </FormControl>
@@ -180,7 +187,7 @@ export default function SignUp(props) {
               <FormLabel htmlFor="email">Email</FormLabel>
               <TextField
                 error={!!errors.email}
-                helperText={errors.email ? errors.email.message : ''}
+                helperText={errors.email ? errors.email.message : '\u00A0'}
                 id="email"
                 type="email"
                 {...register('email', {
@@ -199,6 +206,9 @@ export default function SignUp(props) {
                   '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'red',
                   },
+                  '& .MuiFormHelperText-root': {
+                    minHeight: '1.5em',
+                  },
                 }}
               />
             </FormControl>
@@ -206,7 +216,7 @@ export default function SignUp(props) {
               <FormLabel htmlFor="password">Password</FormLabel>
               <TextField
                 error={!!errors.password}
-                helperText={errors.password ? errors.password.message : ''}
+                helperText={errors.password ? errors.password.message : '\u00A0'}
                 name="password"
                 placeholder="••••••"
                 type="password"
@@ -225,6 +235,9 @@ export default function SignUp(props) {
                 sx={{
                   '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'red',
+                  },
+                  '& .MuiFormHelperText-root': {
+                    minHeight: '1.5em',
                   },
                 }}
               />
