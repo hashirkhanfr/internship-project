@@ -17,7 +17,7 @@ import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 import { Link as RouterLink } from 'react-router-dom';
 import { auth, googleProvider, db } from '../config/firebase';
-import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
@@ -85,13 +85,16 @@ export default function SignUp(props) {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
+
+      await sendEmailVerification(user);
+
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
         name: data.name,
         createdAt: new Date(),
       });
-      setSuccessMessage('Sign up successful!');
+      setSuccessMessage('Sign up successful! Please check your email to verify your account.');
       setShowSuccess(true);
     } catch (error) {
       setFirebaseError(error.message);

@@ -100,8 +100,14 @@ export default function SignIn(props) {
       } else {
         await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
       }
-      setSuccessMessage('Sign in successful!');
-      setShowSuccess(true);
+      if (user.emailVerified) {
+        setSuccessMessage('Sign in successful!');
+        setShowSuccess(true);
+        window.location.href = '/dashboard';
+      } else {
+        setFirebaseError('Please verify your email before accessing the dashboard.');
+        setShowError(true);
+      }
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
