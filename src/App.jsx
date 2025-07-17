@@ -20,6 +20,13 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
