@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import SignIn from './pages/SignIn.jsx';
 import SignUp from './pages/SignUp.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Admin from './pages/Admin.jsx';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
