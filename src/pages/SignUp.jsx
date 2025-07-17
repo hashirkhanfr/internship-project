@@ -97,6 +97,7 @@ export default function SignUp(props) {
         email: user.email,
         name: data.name,
         createdAt: new Date(),
+        role: "user",
       });
       setSuccessMessage('Sign up successful! Please check your email to verify your account.');
       setShowSuccess(true);
