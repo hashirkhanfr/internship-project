@@ -109,7 +109,12 @@ export default function SignIn(props) {
       if (user.emailVerified) {
         setSuccessMessage('Sign in successful!');
         setShowSuccess(true);
-        window.location.href = import.meta.env.BASE_URL + 'dashboard';
+        const role = userDocSnap.data().role;
+        if (role === 'admin') {
+          window.location.href = import.meta.env.BASE_URL + 'admin';
+        } else {
+          window.location.href = import.meta.env.BASE_URL + 'dashboard';
+        }
       } else {
         setFirebaseError('Please verify your email before accessing the dashboard.');
         setShowError(true);
@@ -141,6 +146,12 @@ export default function SignIn(props) {
       }
       setSuccessMessage('Sign in successful!');
       setShowSuccess(true);
+      const role = userDocSnap.exists() ? userDocSnap.data().role : null;
+      if (role === 'admin') {
+        window.location.href = import.meta.env.BASE_URL + 'admin';
+      } else {
+        window.location.href = import.meta.env.BASE_URL + 'dashboard';
+      }
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);

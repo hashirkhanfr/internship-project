@@ -18,7 +18,7 @@ import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
 import { Link as RouterLink } from 'react-router-dom';
 import { auth, googleProvider, db } from '../config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup, sendEmailVerification } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
 import { useForm } from 'react-hook-form';
@@ -101,6 +101,7 @@ export default function SignUp(props) {
       });
       setSuccessMessage('Sign up successful! Please check your email to verify your account.');
       setShowSuccess(true);
+      window.location.href = import.meta.env.BASE_URL + 'signin';
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
@@ -112,9 +113,24 @@ export default function SignUp(props) {
     setShowError(false);
     setShowSuccess(false);
     try {
-      await signInWithPopup(auth, googleProvider);
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const user = userCredential.user;
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || '',
+          createdAt: new Date(),
+          role: "user",
+        });
+      } else {
+        await setDoc(userDocRef, { lastLogin: new Date() }, { merge: true });
+      }
       setSuccessMessage('Sign up successful!');
       setShowSuccess(true);
+      window.location.href = import.meta.env.BASE_URL + 'dashboard';
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
