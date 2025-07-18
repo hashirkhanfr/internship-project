@@ -20,7 +20,14 @@ export function AuthProvider({ children }) {
           const docRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            dispatch(setUserProfile(docSnap.data()));
+            const data = docSnap.data();
+            const serializableData = {
+              ...data,
+              createdAt: data.createdAt ? data.createdAt.toDate().toISOString() : null,
+              lastLogin: data.lastLogin ? data.lastLogin.toDate().toISOString() : null,
+            };
+            console.log('User profile data from Firestore:', serializableData);
+            dispatch(setUserProfile(serializableData));
           } else {
             dispatch(clearUserProfile());
           }
