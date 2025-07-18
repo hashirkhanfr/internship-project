@@ -17,12 +17,10 @@ export default function ProtectedRoute({ children }) {
   }, [currentUser]);
 
   if (!currentUser) {
-    // Not logged in, redirect to signin
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
   if (!currentUser.emailVerified) {
-    // Show alert and block access
     return (
       <>
         <ErrorAlert
@@ -30,7 +28,6 @@ export default function ProtectedRoute({ children }) {
           open={showAlert}
           onClose={() => setShowAlert(false)}
         />
-        {/* Optionally redirect to signin or another page */}
         <Navigate to="/signin" state={{ from: location }} replace />
       </>
     );
