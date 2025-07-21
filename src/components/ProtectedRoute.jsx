@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
   }, [currentUser]);
 
   if (!currentUser) {
-    return <Navigate to="/signin" state={{ from: location }} replace />;
+    return <Navigate to="signin" state={{ from: location }} replace />;
   }
 
   if (!currentUser.emailVerified) {
@@ -28,7 +28,7 @@ export default function ProtectedRoute({ children }) {
           open={showAlert}
           onClose={() => setShowAlert(false)}
         />
-        <Navigate to="/signin" state={{ from: location }} replace />
+        <Navigate to="signin" state={{ from: location }} replace />
       </>
     );
   }

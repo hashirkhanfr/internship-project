@@ -16,7 +16,7 @@ export default function Dashboard() {
     try {
       await auth.signOut();
       dispatch(clearUserProfile());
-      navigate('/signin', { replace: true });
+      navigate('signin', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }
