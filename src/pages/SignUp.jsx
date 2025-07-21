@@ -15,13 +15,14 @@ import { styled } from '@mui/material/styles';
 import AppTheme from '../theme/AppTheme';
 import ColorModeSelect from '../theme/ColorModeSelect';
 import { GoogleIcon, HashirIcon } from '../components/CustomIcons';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Navigate } from 'react-router-dom';
 import { auth, googleProvider, db } from '../config/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../contexts/AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -69,6 +70,12 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignUp(props) {
   const { disableCustomTheme } = props;
+  const { currentUser } = useAuth();
+
+  if (currentUser) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [firebaseError, setFirebaseError] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [showSuccess, setShowSuccess] = React.useState(false);

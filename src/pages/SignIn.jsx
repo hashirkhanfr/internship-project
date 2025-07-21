@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, Navigate } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -24,6 +24,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../contexts/AuthContext';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -71,6 +72,12 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignIn(props) {
   const { disableCustomTheme } = props;
+  const { currentUser } = useAuth();
+
+  if (currentUser) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const [firebaseError, setFirebaseError] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [showSuccess, setShowSuccess] = React.useState(false);
