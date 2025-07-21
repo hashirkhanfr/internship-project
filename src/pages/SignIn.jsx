@@ -154,11 +154,11 @@ export default function SignIn(props) {
       setSuccessMessage('Sign in successful!');
       setShowSuccess(true);
       const role = userDocSnap.exists() ? userDocSnap.data().role : null;
-      if (role === 'admin') {
-        window.location.href = import.meta.env.BASE_URL + 'admin';
-      } else {
-        window.location.href = import.meta.env.BASE_URL + 'dashboard';
-      }
+        if (role === 'admin') {
+          window.location.href = import.meta.env.BASE_URL + '#/admin';
+        } else {
+          window.location.href = import.meta.env.BASE_URL + '#/dashboard';
+        }
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
