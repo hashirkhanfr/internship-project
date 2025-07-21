@@ -16,7 +16,7 @@ export default function Dashboard() {
     try {
       await auth.signOut();
       dispatch(clearUserProfile());
-      navigate('/signin', { replace: true });
+      window.location.href = '/#/signin';
     } catch (error) {
       console.error('Logout failed:', error);
     }
