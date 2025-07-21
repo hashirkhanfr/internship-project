@@ -118,9 +118,9 @@ export default function SignIn(props) {
         setShowSuccess(true);
         const role = userDocSnap.data().role;
         if (role === 'admin') {
-          window.location.href = import.meta.env.BASE_URL + 'admin';
+          window.location.href = import.meta.env.BASE_URL + '#/admin';
         } else {
-          window.location.href = import.meta.env.BASE_URL + 'dashboard';
+          window.location.href = import.meta.env.BASE_URL + '#/dashboard';
         }
       } else {
         setFirebaseError('Please verify your email before accessing the dashboard.');

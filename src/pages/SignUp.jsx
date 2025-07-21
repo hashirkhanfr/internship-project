@@ -108,7 +108,7 @@ export default function SignUp(props) {
       });
       setSuccessMessage('Sign up successful! Please check your email to verify your account.');
       setShowSuccess(true);
-      window.location.href = import.meta.env.BASE_URL + 'signin';
+      window.location.href = import.meta.env.BASE_URL + '#/signin';
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
@@ -137,7 +137,7 @@ export default function SignUp(props) {
       }
       setSuccessMessage('Sign up successful!');
       setShowSuccess(true);
-      window.location.href = import.meta.env.BASE_URL + 'dashboard';
+      window.location.href = import.meta.env.BASE_URL + '#/dashboard';
     } catch (error) {
       setFirebaseError(error.message);
       setShowError(true);
