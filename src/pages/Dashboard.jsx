@@ -1,8 +1,11 @@
+
 import * as React from 'react';
+import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import AppTheme from '../theme/AppTheme';
+import ColorModeSelect from '../theme/ColorModeSelect';
 import { useDispatch } from 'react-redux';
 import { clearUserProfile } from '../store/userSlice';
 import { auth } from '../config/firebase';
@@ -32,7 +35,9 @@ export default function Dashboard() {
 
   return (
     <AppTheme>
-      <Box sx={{ p: 4 }}>
+      <CssBaseline />
+      <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
+      <Box sx={{ p: 4, backgroundColor: 'background.default', minHeight: '100vh', color: 'text.primary' }}>
         <Typography variant="h3" component="h1" gutterBottom>
           Dashboard
         </Typography>
