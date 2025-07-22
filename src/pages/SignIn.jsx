@@ -69,14 +69,6 @@ export default function SignIn(props) {
   const { currentUser } = useAuth();
   const profile = useSelector((state) => state.user.profile);
 
-  if (currentUser) {
-    if (profile?.role === 'admin') {
-      return <Navigate to="/admin" replace />;
-    } else {
-      return <Navigate to="/dashboard" replace />;
-    }
-  }
-
   const [firebaseError, setFirebaseError] = React.useState('');
   const [successMessage, setSuccessMessage] = React.useState('');
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -186,127 +178,137 @@ export default function SignIn(props) {
     <AppTheme disableCustomTheme={disableCustomTheme}>
       <CssBaseline enableColorScheme />
       <SignInContainer direction="column" justifyContent="center" alignItems="center">
-        <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
-        <Card variant="outlined">
-          <HashirIcon />
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
-          >
-            Sign in
-          </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '100%',
-              gap: 2,
-            }}
-          >
-            <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
-              <TextField
-                error={!!errors.email}
-                helperText={errors.email ? errors.email.message : '\u00A0'}
-                id="email"
-                type="email"
-                {...register('email', {
-                  required: 'Please enter a valid email address.',
-                  pattern: {
-                    value: /\S+@\S+\.\S+/,
-                    message: 'Please enter a valid email address.',
-                  },
-                })}
-                placeholder="your@email.com"
-                autoComplete="email"
-                autoFocus
-                fullWidth
-                variant="outlined"
-                color={errors.email ? 'error' : 'primary'}
+        {currentUser ? (
+          profile?.role === 'admin' ? (
+            <Navigate to="/admin" replace />
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        ) : (
+          <>
+            <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
+            <Card variant="outlined">
+              <HashirIcon />
+              <Typography
+                component="h1"
+                variant="h4"
+                sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+              >
+                Sign in
+              </Typography>
+              <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
+                noValidate
                 sx={{
-                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'red',
-                  },
-                  '& .MuiFormHelperText-root': {
-                    minHeight: '1.5em',
-                  },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  gap: 2,
                 }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <TextField
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message : '\u00A0'}
-                id="password"
-                type="password"
-                {...register('password', {
-                  required: 'Password must be at least 6 characters long.',
-                  minLength: {
-                    value: 6,
-                    message: 'Password must be at least 6 characters long.',
-                  },
-                })}
-                placeholder="••••••"
-                autoComplete="current-password"
-                fullWidth
-                variant="outlined"
-                color={errors.password ? 'error' : 'primary'}
-                sx={{
-                  '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'red',
-                  },
-                  '& .MuiFormHelperText-root': {
-                    minHeight: '1.5em',
-                  },
-                }}
-              />
-            </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-              sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}
-              className="remember-me-label"
-            />
-            <ForgotPassword open={open} handleClose={handleClose} />
-            <Button type="submit" fullWidth variant="contained">
-              Sign in
-            </Button>
-            <Link
-              component="button"
-              type="button"
-              onClick={handleClickOpen}
-              variant="body2"
-              sx={{ alignSelf: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }}
-              className="forgot-password-link"
-            >
-              Forgot your password?
-            </Link>
-          </Box>
-          <Divider>or</Divider>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={handleGoogleSignIn}
-              startIcon={<GoogleIcon />}
-            >
-              Sign in with Google
-            </Button>
-            <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }} className="no-account-text">
-              Don't have an account?{' '}
-              <Link component={RouterLink} to="/signup" variant="body2" sx={{ alignSelf: 'center' }}>
-                Sign up
-              </Link>
-            </Typography>
-          </Box>
-        </Card>
-        {showSuccess && <SuccessButton message={successMessage} onClose={handleSuccessClose} />}
-        <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
+              >
+                <FormControl>
+                  <FormLabel htmlFor="email">Email</FormLabel>
+                  <TextField
+                    error={!!errors.email}
+                    helperText={errors.email ? errors.email.message : '\u00A0'}
+                    id="email"
+                    type="email"
+                    {...register('email', {
+                      required: 'Please enter a valid email address.',
+                      pattern: {
+                        value: /\S+@\S+\.\S+/,
+                        message: 'Please enter a valid email address.',
+                      },
+                    })}
+                    placeholder="your@email.com"
+                    autoComplete="email"
+                    autoFocus
+                    fullWidth
+                    variant="outlined"
+                    color={errors.email ? 'error' : 'primary'}
+                    sx={{
+                      '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
+                      },
+                      '& .MuiFormHelperText-root': {
+                        minHeight: '1.5em',
+                      },
+                    }}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <TextField
+                    error={!!errors.password}
+                    helperText={errors.password ? errors.password.message : '\u00A0'}
+                    id="password"
+                    type="password"
+                    {...register('password', {
+                      required: 'Password must be at least 6 characters long.',
+                      minLength: {
+                        value: 6,
+                        message: 'Password must be at least 6 characters long.',
+                      },
+                    })}
+                    placeholder="••••••"
+                    autoComplete="current-password"
+                    fullWidth
+                    variant="outlined"
+                    color={errors.password ? 'error' : 'primary'}
+                    sx={{
+                      '& .MuiOutlinedInput-root.Mui-error .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'red',
+                      },
+                      '& .MuiFormHelperText-root': {
+                        minHeight: '1.5em',
+                      },
+                    }}
+                  />
+                </FormControl>
+                <FormControlLabel
+                  control={<Checkbox value="remember" color="primary" />}
+                  label="Remember me"
+                  sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}
+                  className="remember-me-label"
+                />
+                <ForgotPassword open={open} handleClose={handleClose} />
+                <Button type="submit" fullWidth variant="contained">
+                  Sign in
+                </Button>
+                <Link
+                  component="button"
+                  type="button"
+                  onClick={handleClickOpen}
+                  variant="body2"
+                  sx={{ alignSelf: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }}
+                  className="forgot-password-link"
+                >
+                  Forgot your password?
+                </Link>
+              </Box>
+              <Divider>or</Divider>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={handleGoogleSignIn}
+                  startIcon={<GoogleIcon />}
+                >
+                  Sign in with Google
+                </Button>
+                <Typography sx={{ textAlign: 'center', fontSize: { xs: '0.8rem', sm: '1rem' } }} className="no-account-text">
+                  Don't have an account?{' '}
+                  <Link component={RouterLink} to="/signup" variant="body2" sx={{ alignSelf: 'center' }}>
+                    Sign up
+                  </Link>
+                </Typography>
+              </Box>
+            </Card>
+            {showSuccess && <SuccessButton message={successMessage} onClose={handleSuccessClose} />}
+            <ErrorAlert message={firebaseError} open={showError} onClose={handleErrorClose} />
+          </>
+        )}
       </SignInContainer>
     </AppTheme>
   );

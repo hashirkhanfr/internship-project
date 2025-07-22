@@ -2,7 +2,7 @@ import * as React from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearUserProfile } from '../store/userSlice';
 import { auth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
@@ -12,12 +12,15 @@ export default function Admin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const profile = useSelector((state) => state.user.profile);
 
   React.useEffect(() => {
     if (!currentUser) {
       navigate('/signin', { replace: true });
+    } else if (profile?.role !== 'admin') {
+      navigate('/dashboard', { replace: true });
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, profile]);
 
   const handleLogout = async () => {
     try {
