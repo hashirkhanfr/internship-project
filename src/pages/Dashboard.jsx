@@ -7,10 +7,18 @@ import { useDispatch } from 'react-redux';
 import { clearUserProfile } from '../store/userSlice';
 import { auth } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  React.useEffect(() => {
+    if (!currentUser) {
+      navigate('/signin', { replace: true });
+    }
+  }, [currentUser, navigate]);
 
   const handleLogout = async () => {
     try {

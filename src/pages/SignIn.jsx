@@ -25,6 +25,7 @@ import SuccessButton from '../components/SuccessButton';
 import ErrorAlert from '../components/ErrorAlert';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../contexts/AuthContext';
+import { useSelector } from 'react-redux';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -60,22 +61,20 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
     position: 'absolute',
     zIndex: -1,
     inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-    backgroundRepeat: 'no-repeat',
-    ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-    }),
   },
 }));
 
 export default function SignIn(props) {
   const { disableCustomTheme } = props;
   const { currentUser } = useAuth();
+  const profile = useSelector((state) => state.user.profile);
 
   if (currentUser) {
-    return <Navigate to="/dashboard" replace />;
+    if (profile?.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   const [firebaseError, setFirebaseError] = React.useState('');
