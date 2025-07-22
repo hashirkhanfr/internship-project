@@ -66,9 +66,14 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 export default function SignUp(props) {
   const { disableCustomTheme } = props;
   const { currentUser } = useAuth();
+  const userProfile = useSelector((state) => state.user.profile);
 
-  if (currentUser) {
-    return <Navigate to="/dashboard" replace />;
+  if (currentUser && userProfile) {
+    if (userProfile.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   const [firebaseError, setFirebaseError] = React.useState('');
